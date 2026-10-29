@@ -1,0 +1,1 @@
+"""AgroStake training package."""

@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Training outputs
+runs/
+lightning_logs/
+*.log
+test_predictions.npz
+
+# Datasets (obtain separately; see data/README.md)
+data/augmented-dataset/
+data/plantvillage/
+data/raw/
+data/**/*.jpg
+data/**/*.jpeg
+data/**/*.png
+!data/splits/*.npz
+
+# ESP-IDF
+firmware/**/build/
+firmware/**/managed_components/
+firmware/**/dependencies.lock
+firmware/**/sdkconfig
+firmware/**/sdkconfig.old
+firmware/**/*.bin
+firmware/**/*.elf
+firmware/**/*.map
+
+# GUI packaging
+host/gui/build/
+host/gui/dist/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

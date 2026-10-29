@@ -1,0 +1,17 @@
+# Core training / export environment (CPU or CUDA).
+# Install the PyTorch build appropriate for your platform first if you need GPU:
+# https://pytorch.org/get-started/locally/
+torch>=2.1
+torchvision>=0.16
+numpy>=1.24
+Pillow>=10.0
+tqdm>=4.66
+scikit-learn>=1.3
+onnx>=1.15
+onnxruntime>=1.16
+
+# Host serial CLI
+pyserial>=3.5
+
+# Optional: only for --roi in host/serial/send_image.py
+opencv-python>=4.8

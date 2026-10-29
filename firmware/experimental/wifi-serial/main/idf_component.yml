@@ -1,0 +1,5 @@
+dependencies:
+  idf:
+    version: ">=5.4"
+  espressif/esp-dl:
+    version: "^3.3.2"

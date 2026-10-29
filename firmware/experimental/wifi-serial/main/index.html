@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AgroStake | Edge AI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    color: #3fb950;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    color: #8b949e;
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  /* ROI Preview Styling */
+  #roi-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: #0d1117;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px dashed #30363d;
+  }
+
+  #roi-canvas {
+    width: 128px; /* Displayed slightly larger for visibility */
+    height: 128px;
+    border: 2px solid #3fb950;
+    border-radius: 4px;
+    background: #000;
+    image-rendering: pixelated; /* Keeps it looking like the raw data it is */
+  }
+
+  .roi-label {
+    margin-top: 10px;
+    font-size: 0.7rem;
+    color: #8b949e;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .btn-primary { background: #238636; }
+  .btn-primary:hover { background: #2ea043; }
+  
+  .btn-secondary { 
+    background: transparent; 
+    border: 1px solid #30363d; 
+    color: #8b949e;
+    margin-top: 12px;
+  }
+  .btn-secondary:hover { background: #21262d; color: #c9d1d9; }
+
+  input[type="file"] { display: none; }
+
+  #spinner-card {
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #30363d;
+    border-top-color: #3fb950;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #result-card { display: none; }
+
+  .disease-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .disease-name.healthy   { color: #3fb950; }
+  .disease-name.diseased  { color: #f85149; }
+
+  .confidence-bar-wrap {
+    background: #0d1117;
+    border-radius: 4px;
+    height: 8px;
+    margin: 10px 0 6px;
+    overflow: hidden;
+  }
+
+  .confidence-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #3fb950;
+  }
+
+  .confidence-bar.low  { background: #f85149; }
+  .confidence-bar.mid  { background: #e3b341; }
+
+  .meta {
+    color: #8b949e;
+    font-size: 0.75rem;
+    margin-top: 12px;
+    line-height: 1.4;
+    border-top: 1px solid #30363d;
+    padding-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🌿 AgroStake</h1>
+<p class="subtitle">Grapevine Disease Detection — Edge AI</p>
+
+<div class="card">
+  <!-- ROI Preview Section -->
+  <div id="roi-wrap">
+    <canvas id="roi-canvas" width="96" height="96"></canvas>
+    <div class="roi-label">Inference ROI (96x96 RGB888)</div>
+  </div>
+
+  <!-- Camera Action -->
+  <label class="btn btn-primary" for="cam-input">📷 Capture Leaf Photo</label>
+  <input type="file" id="cam-input" accept="image/*" capture="camera">
+
+  <!-- File Upload Action -->
+  <label class="btn btn-secondary" for="file-input">📁 Upload from Gallery</label>
+  <input type="file" id="file-input" accept="image/*">
+</div>
+
+<!-- Loading State -->
+<div class="card" id="spinner-card">
+  <div class="spinner"></div>
+  <span id="spinner-text">Preparing data...</span>
+</div>
+
+<!-- Results Card -->
+<div class="card" id="result-card">
+  <div class="disease-name" id="r-class">—</div>
+  <div id="r-conf-label" style="font-size:0.85rem; color:#8b949e;"></div>
+  
+  <div class="confidence-bar-wrap">
+    <div class="confidence-bar" id="r-bar" style="width:0%"></div>
+  </div>
+
+  <div class="meta" id="r-meta">
+    <!-- Meta details populated by JS -->
+  </div>
+</div>
+
+<script>
+const canvas      = document.getElementById('roi-canvas');
+const ctx         = canvas.getContext('2d');
+const spinnerCard = document.getElementById('spinner-card');
+const spinnerText = document.getElementById('spinner-text');
+const resultCard  = document.getElementById('result-card');
+const rClass      = document.getElementById('r-class');
+const rConfLabel  = document.getElementById('r-conf-label');
+const rBar        = document.getElementById('r-bar');
+const rMeta       = document.getElementById('r-meta');
+
+// Attach listeners to both capture methods
+[document.getElementById('cam-input'), document.getElementById('file-input')].forEach(input => {
+  input.addEventListener('change', (e) => processImage(e.target.files[0]));
+});
+
+function updateSpinner(show, text) {
+  spinnerCard.style.display = show ? 'flex' : 'none';
+  if (text) spinnerText.textContent = text;
+}
+
+async function processImage(file) {
+  if (!file) return;
+
+  resultCard.style.display = 'none';
+  updateSpinner(true, 'Downsampling to 96×96...');
+
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  
+  img.onload = async () => {
+    // 1. Calculate Center Crop (True ROI)
+    const sourceWidth = img.width;
+    const sourceHeight = img.height;
+    const minDim = Math.min(sourceWidth, sourceHeight);
+    
+    // Calculate top-left corner of the square to keep it centered
+    const sx = (sourceWidth - minDim) / 2;
+    const sy = (sourceHeight - minDim) / 2;
+
+    // 2. Draw ONLY the center square into the 96x96 canvas
+    // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+    ctx.clearRect(0, 0, 96, 96);
+    ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 96, 96);
+    
+    // 3. Extract Binary RGB888 (27,648 bytes)
+    const rgba = ctx.getImageData(0, 0, 96, 96).data;
+    const rgb = new Uint8Array(96 * 96 * 3);
+    
+    for (let i = 0, j = 0; i < rgba.length; i += 4) {
+      rgb[j++] = rgba[i];     // R
+      rgb[j++] = rgba[i + 1]; // G
+      rgb[j++] = rgba[i + 2]; // B
+    }
+
+    updateSpinner(true, 'Transmitting 27KB ROI...');
+    const tStart = performance.now();
+
+    try {
+      const response = await fetch('/detect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/octet-stream' },
+        body: rgb.buffer
+      });
+
+      if (!response.ok) throw new Error('ESP32 Communication Failed');
+
+      const data = await response.json();
+      const rtt = Math.round(performance.now() - tStart);
+      
+      displayResults(data, rtt);
+
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      updateSpinner(false);
+      URL.revokeObjectURL(url);
+    }
+  };
+  
+  img.src = url;
+}
+
+function displayResults(data, rtt) {
+  const isHealthy = data.class.toLowerCase() === 'healthy';
+  
+  rClass.textContent = data.class.replace('_', ' ');
+  rClass.className = 'disease-name ' + (isHealthy ? 'healthy' : 'diseased');
+  
+  rConfLabel.textContent = `Confidence Score: ${data.confidence.toFixed(1)}%`;
+  
+  const pct = Math.round(data.confidence);
+  rBar.style.width = pct + '%';
+  rBar.className = 'confidence-bar' + (pct < 50 ? ' low' : pct < 75 ? ' mid' : '');
+
+  rMeta.innerHTML = `
+    <div><strong>Inference:</strong> ${data.time_ms} ms</div>
+    <div><strong>Network RTT:</strong> ${rtt} ms</div>
+    <div><strong>Hardware:</strong> ESP32-S3 (Octal OPI)</div>
+  `;
+
+  resultCard.style.display = 'block';
+}
+</script>
+</body>
+</html>

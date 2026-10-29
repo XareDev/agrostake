@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this project, please cite it as below."
+title: "AgroStake: Edge AI for Grapevine Disease Detection on the ESP32-S3"
+version: 0.1.0
+date-released: 2026-10-29
+license: MIT
+repository-code: "https://github.com/XareDev/agrostake"
+url: "https://github.com/XareDev/agrostake"
+keywords:
+  - grapevine disease
+  - plant disease detection
+  - ESP32-S3
+  - ESP-DL
+  - edge AI
+  - TinyML
+  - knowledge distillation
+authors:
+  - family-names: Harmouni
+    given-names: Youcef
+    affiliation: "IGEE (ex. INELEC), University of Boumerdes, Algeria"
+  - family-names: Draou
+    given-names: Rihane
+    affiliation: "IGEE (ex. INELEC), University of Boumerdes, Algeria"
+abstract: >-
+  AgroStake is a compact grapevine leaf disease classifier designed for the
+  ESP32-S3. It includes four-class RGB and grayscale models, a binary
+  healthy/diseased gate experiment, training and evaluation scripts, ONNX
+  export, INT8 ESP-DL artefacts, and UART, USB-Serial-JTAG, and Wi-Fi firmware
+  variants. The repository documents the measured results and the provenance
+  of every released model.
