@@ -80,6 +80,6 @@ Use [`../CITATION.cff`](../CITATION.cff). A plain-text form:
 
 ```text
 Harmouni, Y., & Draou, R. (2026). AgroStake: Edge AI for Grapevine Disease
-Detection on the ESP32-S3 (Version 0.1.0) [Computer software].
+Detection on the ESP32-S3 (Version 0.1.1) [Computer software].
 https://github.com/XareDev/agrostake
 ```

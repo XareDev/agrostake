@@ -84,8 +84,13 @@ extern "C" void app_main(void)
     }
 
     std::string input_name = model->get_inputs().begin()->first;
-    ESP_LOGI(TAG, "AgroStake READY via USB-JTAG"); 
-    ESP_LOGI(TAG, "READY"); 
+    ESP_LOGI(TAG, "AgroStake READY via USB-JTAG");
+
+    // The console is on UART0, so ESP_LOGI() is not visible on the native USB
+    // port. Send the handshake explicitly on the USB data channel.
+    static const char ready[] = "READY\n";
+    usb_serial_jtag_write_bytes(ready, sizeof(ready) - 1, pdMS_TO_TICKS(1000));
+
     while (true) {
         uint8_t magic = 0;
         // Wait for magic byte 0xAA

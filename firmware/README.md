@@ -9,7 +9,7 @@ its own `main/`, model binary, partition table, `sdkconfig.defaults`, and
 |---|---|---|---|
 | `uart-grayscale/` | `TinyAgCNN_s8.espdl` (27,828 params) | UART0, 115200 8N1 | v1 baseline |
 | `uart-rgb/` | `TinyAgCNN_v2_s8.espdl` (275,236 params) | UART0, 115200 8N1 | v2 |
-| `jtag/` | v2 `.espdl` (separate export) | USB-Serial-JTAG | v2 |
+| `jtag/` | v2 `.espdl` (separate export) | USB-Serial-JTAG | v2; see [`jtag/README.md`](jtag/README.md) |
 | `wifi/` | `TinyAgCNN_v2_s8.espdl` | SoftAP + HTTP | v2 |
 | `experimental/wifi-serial/` | `TinyAgCNN_v2_s8.espdl` | USB-Serial-JTAG + HTTP | WIP, not maintained |
 
@@ -85,9 +85,14 @@ host -> device: 0xAA | 27,648 signed INT8 bytes
 device -> host: CLASS:<name> SCORE:<int8> CONF:<0-100> TIME:<ms>ms
 ```
 
-- Console is on UART0, so use the native USB port for the image.
+- Console is on UART0, so use the native USB port for the image. `READY` and
+  the result line are written explicitly over USB; the host does not need to
+  open the UART console.
 - The embedded model is a separate 315,776-byte export with SHA-256
   `D6778781…F3FDC9F`. It is intentionally kept in this directory.
+- The host must send the frame only after receiving `READY`. See
+  [`jtag/README.md`](jtag/README.md) for the variant-specific notes and the
+  archive reconciliation.
 
 ### `experimental/wifi-serial`
 

@@ -80,6 +80,10 @@ the same pins" failure in the four maintained variants. The experimental
 variant deliberately shares USB-Serial-JTAG and uses its `jtag_safe_printf`
 wrapper; it is a work-in-progress path, not the default.
 
+On `jtag`, `READY` and the result line are written explicitly with
+`usb_serial_jtag_write_bytes()`. The UART0 console is optional for normal host
+operation; open it only if you want the boot/error logs.
+
 ## 3. Model embedding
 
 Each `main/CMakeLists.txt` embeds a model with:
@@ -176,7 +180,8 @@ installed ESP-DL version rather than copying an old command blindly.
 | JTAG | USB-Serial-JTAG D+/D− | USB cable to the native USB port |
 
 The UART variants use 115200 8N1. The host must wait for `READY` before sending
-the frame.
+the frame. On `jtag`, `READY` and the reply are on the native USB channel even
+though `ESP_LOG*` goes to UART0.
 
 ### Frame
 
@@ -212,11 +217,14 @@ See [`../host/README.md`](../host/README.md).
 
 ### If the device never prints READY
 
-- Check the console routing. UART0 is the image transport on `uart-rgb`; the
-  console must be on USB-Serial-JTAG.
-- Check the baud rate (115200).
-- Press reset after opening the port; the host CLI expects the banner.
-- On `jtag`, use the native USB port, not the UART bridge.
+- Check the transport routing. On `uart-rgb`, UART0 is the image transport and
+  the host opens that port; on `jtag`, the native USB port is the data channel
+  and UART0 is only the console.
+- Check the baud rate (115200) for the UART variants; native USB-CDC ignores it.
+- Press reset after opening the port; the host CLI expects the startup line.
+- On `jtag`, `READY` is written with `usb_serial_jtag_write_bytes()`, so it is
+  not visible on the UART0 console. If the UART console shows a successful boot
+  but the host still lacks `READY`, the host is probably on the wrong port.
 
 ## 6. Wi-Fi use
 

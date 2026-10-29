@@ -220,10 +220,11 @@ The full protocol and wiring notes are in
 - **Binary gate is incomplete.** The notebook's training run stopped before a
   final test report, and its ImageNet-normalised preprocessing does not match
   the deployment `[-1,1]` contract. It is not wired into any firmware.
-- **Firmware was not recompiled during repository cleanup.** The sources and
-  configuration are provided for ESP-IDF ≥ 5.4; build and validate on your
-  board before relying on timing numbers. The original on-device logs are not
-  part of this repository.
+- **Firmware build status is partial.** The `firmware/jtag` variant was
+  build-checked during integration with ESP-IDF v6.0 and ESP-DL 3.3.2; the other
+  variants were not recompiled. Build and validate on your board before relying
+  on timing numbers. The original on-device logs are not part of this
+  repository.
 - **The experimental firmware is WIP.** It combines serial and Wi-Fi paths and
   is intentionally isolated from the four maintained variants.
 
@@ -241,6 +242,7 @@ The full protocol and wiring notes are in
 | [`data/README.md`](data/README.md) | Expected dataset layout and split semantics |
 | [`host/README.md`](host/README.md) | CLI and GUI usage |
 | [`firmware/README.md`](firmware/README.md) | Variant matrix, wiring, build, protocols |
+| [`firmware/jtag/README.md`](firmware/jtag/README.md) | USB-Serial-JTAG variant, protocol and archive reconciliation |
 
 ## Citation
 
@@ -249,7 +251,7 @@ If you use this work, please cite the repository using
 
 ```text
 Harmouni, Y., & Draou, R. (2026). AgroStake: Edge AI for Grapevine Disease
-Detection on the ESP32-S3 (Version 0.1.0) [Computer software].
+Detection on the ESP32-S3 (Version 0.1.1) [Computer software].
 https://github.com/XareDev/agrostake
 ```
 

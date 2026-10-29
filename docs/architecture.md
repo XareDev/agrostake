@@ -164,7 +164,9 @@ CLASS:<name> SCORE:<int8> CONF:<0-100> TIME:<milliseconds>ms
   It is a relative ranking score, not a calibrated probability.
 - `TIME` is measured on the device with `esp_timer_get_time()`.
 - The host must wait for a line containing `READY` before sending the magic
-  byte. The firmware prints a startup banner and then `READY`.
+  byte. On UART variants `READY` follows the startup banner on the same port;
+  on `jtag` it is written explicitly to USB-Serial-JTAG while the banner stays
+  on the UART0 console.
 
 The `CONF` field was added during this repository cleanup. Older firmware only
 printed `CLASS`, `SCORE`, and `TIME`; the host CLI and GUI fall back to

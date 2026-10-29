@@ -9,7 +9,7 @@ directory and records where it came from.
 
 | Item | Value |
 |---|---|
-| Public release | `0.1.0` |
+| Public release | `0.1.1` |
 | Release date | 2026-10-29 |
 | Primary model | RGB v2, 275,236 parameters |
 | Dataset split | 12,999 train / 1,445 validation / 3,610 test |
@@ -23,7 +23,7 @@ several iterations and were not individually tagged.
 |---|---|---|---|
 | `firmware/uart-grayscale` | v1 grayscale over UART0 | `TinyAgCNN_s8.espdl` (27,828 params) | Original grayscale inference firmware |
 | `firmware/uart-rgb` | v2 RGB over UART0 | `TinyAgCNN_v2_s8.espdl` (275,236 params) | `feature/stable-opi-80mhz-uart` |
-| `firmware/jtag` | v2 RGB over USB-Serial-JTAG | separately exported v2 `.espdl` | USB-Serial-JTAG variant |
+| `firmware/jtag` | v2 RGB over USB-Serial-JTAG | separately exported v2 `.espdl` | USB-Serial-JTAG variant; reconciled with the supplied JTAG archive |
 | `firmware/wifi` | v2 RGB SoftAP + browser UI | `TinyAgCNN_v2_s8.espdl` | Wi-Fi workspace (`WI-FI/`) |
 | `firmware/experimental/wifi-serial` | v2 serial + Wi-Fi, WIP | `TinyAgCNN_v2_s8.espdl` | `unresolved` / `folder_unresolved` worktree |
 
@@ -32,6 +32,15 @@ Where a name is known it is shown above; where it is not, the functional variant
 is the source of truth. The public repository deliberately does **not** recreate
 one Git branch per hardware experiment, because that would duplicate hundreds of
 near-identical files and make the maintained path harder to find.
+
+The supplied `JTAG.zip` archive is already represented by the existing
+`firmware/jtag` source and 315,776-byte model export. The maintained copy keeps
+the archive's code and model, adds explicit `READY` output on the USB data
+channel and the `CONF` field, and does not import the archive's `send_image.py`
+because it applied ImageNet normalization instead of the deployment
+`pixel - 128` contract. The `jtag` variant was build-checked with ESP-IDF v6.0
+and ESP-DL 3.3.2. See
+[`../firmware/jtag/README.md`](../firmware/jtag/README.md).
 
 ### Firmware file hashes
 
