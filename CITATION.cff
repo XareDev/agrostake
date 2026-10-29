@@ -18,9 +18,6 @@ authors:
   - family-names: Harmouni
     given-names: Youcef
     affiliation: "IGEE (ex. INELEC), University of Boumerdes, Algeria"
-  - family-names: Draou
-    given-names: Rihane
-    affiliation: "IGEE (ex. INELEC), University of Boumerdes, Algeria"
 abstract: >-
   AgroStake is a compact grapevine leaf disease classifier designed for the
   ESP32-S3. It includes four-class RGB and grayscale models, a binary
